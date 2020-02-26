@@ -112,8 +112,16 @@ public class Dispatcher extends Stopable {
 
 		// TODO: create the topic in the broker storage
 		// the topic is contained in the create topic message
+		
+		Logger.log("onCreateTopic:" + msg.toString());
+        try{
+            storage.createTopic(msg.getTopic());
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            Logger.log("Error");
+        }
 
-		throw new UnsupportedOperationException(TODO.method());
+		//throw new UnsupportedOperationException(TODO.method());
 
 	}
 
@@ -124,7 +132,15 @@ public class Dispatcher extends Stopable {
 		// TODO: delete the topic from the broker storage
 		// the topic is contained in the delete topic message
 		
-		throw new UnsupportedOperationException(TODO.method());
+		Logger.log("onDeleteTopic:" + msg.toString());
+        try{
+            storage.deleteTopic(msg.getTopicToBeDeleted());
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            Logger.log("Error");
+        }
+		
+		//throw new UnsupportedOperationException(TODO.method());
 	}
 
 	public void onSubscribe(SubscribeMsg msg) {
@@ -134,7 +150,15 @@ public class Dispatcher extends Stopable {
 		// TODO: subscribe user to the topic
 		// user and topic is contained in the subscribe message
 		
-		throw new UnsupportedOperationException(TODO.method());
+		Logger.log("onSubscribe:" + msg.toString());
+        try{
+            storage.addSubscriber(msg.getUser(), msg.getSubscribeTo());
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            Logger.log("Error");
+        }
+		
+		//throw new UnsupportedOperationException(TODO.method());
 
 	}
 
@@ -145,7 +169,15 @@ public class Dispatcher extends Stopable {
 		// TODO: unsubscribe user to the topic
 		// user and topic is contained in the unsubscribe message
 		
-		throw new UnsupportedOperationException(TODO.method());
+		Logger.log("onUnsubscribe:" + msg.toString());
+        try{
+            storage.removeSubscriber(msg.getUser(), msg.getUnsubTo());
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            Logger.log("Error");
+        }
+		
+		//throw new UnsupportedOperationException(TODO.method());
 	}
 
 	public void onPublish(PublishMsg msg) {
@@ -156,7 +188,26 @@ public class Dispatcher extends Stopable {
 		// topic and message is contained in the subscribe message
 		// messages must be sent used the corresponding client session objects
 		
-		throw new UnsupportedOperationException(TODO.method());
+		Collection<ClientSession> clients = storage.getSessions();
+        try{
+            for (ClientSession client : clients) {
+                if (storage.subscriptions.get(msg.getTopic()).contains(client.getUser())) {
+                    MessageUtils.send(client.getConnection(), msg);
+                }
+            }
+            // Stores the message if subscribed user is offline
+            for (String subbedUser : storage.getSubscribers(msg.getTopic())) {
+                if (storage.disconnectedClients.containsKey(subbedUser)) {
+                    storage.addToBufferAndToUnread(msg.getTopic(), msg, subbedUser);
+                }
+            }
+        }catch (NullPointerException e){
+            e.printStackTrace();
+            Logger.log("onPublish: Error!");
+        }
+
+		
+		//throw new UnsupportedOperationException(TODO.method());
 
 	}
 }

@@ -10,4 +10,23 @@ public class UnsubscribeMsg extends Message {
 	// Constructor, get/set-methods, and toString method
 	// as described in the project text
 	
+	private String unsubTo;
+
+    public UnsubscribeMsg(String user, String unsubTo) {
+        super(MessageType.UNSUBSCRIBE, user);
+        this.unsubTo = unsubTo;
+    }
+
+    public String getUnsubTo() {
+        return unsubTo;
+    }
+
+    public void setUnsubTo(String unsubTo) {
+        this.unsubTo = unsubTo;
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + " unsubscribe to: "  + this.unsubTo;
+    }
 }
