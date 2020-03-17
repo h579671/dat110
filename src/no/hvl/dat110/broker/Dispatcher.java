@@ -11,7 +11,7 @@ import no.hvl.dat110.messagetransport.Connection;
 
 public class Dispatcher extends Stopable {
 
-	private Storage storage;
+    private Storage storage;
 
 	public Dispatcher(Storage storage) {
 		super("Dispatcher");
